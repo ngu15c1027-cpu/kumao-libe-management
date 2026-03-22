@@ -169,8 +169,8 @@ body {
 .biz-card-title { font-size:15px; font-weight:800; color:var(--blue-dark); margin-bottom:6px; }
 .biz-card-desc  { font-size:13px; line-height:1.8; margin-bottom:14px; }
 .biz-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; }
-.biz-metric { background:var(--gray-light); border-radius:8px; padding:12px; text-align:center; }
-.biz-metric .val { font-size:20px; font-weight:800; color:var(--blue); }
+.biz-metric { background:var(--gray-light); border-radius:8px; padding:12px; text-align:center; overflow:hidden; }
+.biz-metric .val { font-size:clamp(13px,1.6vw,20px); font-weight:800; color:var(--blue); word-break:break-all; line-height:1.3; }
 .biz-metric .lbl { font-size:11px; color:var(--text-sub); margin-top:2px; }
 .biz-metric.red   .val { color:var(--red); }
 .biz-metric.green .val { color:var(--green); }
@@ -181,8 +181,8 @@ body {
 .deepdive-banner p  { font-size:13px; opacity:.85; line-height:1.6; }
 
 .metrics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:24px; }
-.metric-card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:20px; text-align:center; }
-.metric-card .val { font-size:28px; font-weight:900; color:var(--blue); line-height:1.2; }
+.metric-card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:20px; text-align:center; overflow:hidden; }
+.metric-card .val { font-size:clamp(16px,2vw,26px); font-weight:900; color:var(--blue); line-height:1.3; word-break:break-all; }
 .metric-card .val.red    { color:var(--red); }
 .metric-card .val.green  { color:var(--green); }
 .metric-card .val.orange { color:var(--orange); }
