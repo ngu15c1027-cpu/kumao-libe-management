@@ -122,8 +122,8 @@ def filter_last_24h(messages, now_ts):
 
 
 def fetch_all_messages(now_ts):
-    """全ルームのメッセージを取得して事業別に整理"""
-    print('Chatworkメッセージ取得中...')
+    """事業監視ルーム（22室）のメッセージを取得して事業別に整理"""
+    print('事業ルームのChatworkメッセージ取得中...')
     biz_messages   = defaultdict(list)   # {biz: [{room_name, msg}, ...]}
     room_messages  = {}                  # {room_id: [msg, ...]}
 
@@ -140,6 +140,31 @@ def fetch_all_messages(now_ts):
         print(f'  {meta["name"]}: {len(recent)}件（直近24h）')
 
     return biz_messages, room_messages
+
+
+def fetch_all_my_room_messages(now_ts):
+    """自分が参加している全ルーム（DM含む）のメッセージを取得（Chatwork振り返り用）"""
+    print('全ルームのメッセージ取得中（DM含む）...')
+    rooms_data = cw_get('/rooms')
+    if not isinstance(rooms_data, list):
+        print('[WARN] /rooms 取得失敗 → 事業ルームのみで代替')
+        return {}, {}
+
+    print(f'  参加ルーム数: {len(rooms_data)}')
+    room_name_map = {str(r['room_id']): r.get('name', str(r['room_id'])) for r in rooms_data}
+
+    room_messages = {}
+    for room in rooms_data:
+        room_id = str(room.get('room_id', ''))
+        msgs = get_room_messages(room_id)
+        recent = filter_last_24h(msgs, now_ts)
+        if recent:
+            room_messages[room_id] = recent
+        time.sleep(0.3)  # レート制限対策
+
+    total = sum(len(v) for v in room_messages.values())
+    print(f'  直近24h メッセージ合計: {total}件（{len(room_messages)}ルーム）')
+    return room_messages, room_name_map
 
 
 # ============================================================
@@ -291,8 +316,15 @@ def fetch_member_list(sheet_id):
 # Chatwork振り返り統計（Python側で計算）
 # ============================================================
 
-def calc_chatwork_stats(all_room_messages, my_account_id, now):
+def calc_chatwork_stats(all_room_messages, my_account_id, now, room_name_map=None):
     """自分が送ったメッセージの統計を計算"""
+    room_name_map = room_name_map or {}
+
+    def get_room_name(room_id):
+        return (ALL_ROOMS.get(room_id, {}).get('name')
+                or room_name_map.get(room_id)
+                or room_id)
+
     my_msgs = []
     room_counts = defaultdict(int)   # {room_id: count}
     contact_counts = defaultdict(int) # {name: count}
@@ -303,7 +335,7 @@ def calc_chatwork_stats(all_room_messages, my_account_id, now):
             if acc.get('account_id') == my_account_id:
                 my_msgs.append({
                     'room_id':   room_id,
-                    'room_name': ALL_ROOMS.get(room_id, {}).get('name', room_id),
+                    'room_name': get_room_name(room_id),
                     'body':      m.get('body', ''),
                     'send_time': m.get('send_time', 0),
                 })
@@ -311,7 +343,6 @@ def calc_chatwork_stats(all_room_messages, my_account_id, now):
             else:
                 # 自分以外のメッセージ送信者をカウント（やり取り相手）
                 name = acc.get('name', '不明')
-                # 自分が送ったメッセージが同じルームにあれば相手としてカウント
                 contact_counts[name] += 1
 
     if not my_msgs:
@@ -329,7 +360,7 @@ def calc_chatwork_stats(all_room_messages, my_account_id, now):
     room_summary = []
     for room_id, cnt in sorted(room_counts.items(), key=lambda x: -x[1])[:10]:
         room_summary.append({
-            'room_name': ALL_ROOMS.get(room_id, {}).get('name', room_id),
+            'room_name': get_room_name(room_id),
             'count':     cnt,
         })
 
@@ -412,6 +443,7 @@ def call_claude(prompt, max_tokens=4096, label=''):
             return {}
         except json.JSONDecodeError as je:
             print(f'[WARN] Claude ({label}): JSON解析エラー: {je}')
+            print(f'  レスポンス先頭200字: {text[:200]}')
             return {}
         except Exception as ex:
             print(f'[ERROR] Claude ({label}): {ex}')
@@ -455,7 +487,7 @@ def analyze_risks(all_biz_context, revenue_context, today_str):
 
 JSONのみを返してください。"""
 
-    return call_claude(prompt, max_tokens=3000, label='risks')
+    return call_claude(prompt, max_tokens=6000, label='risks')
 
 
 def analyze_chatwork_review(my_msgs_text, stats, today_str):
@@ -499,7 +531,7 @@ def analyze_chatwork_review(my_msgs_text, stats, today_str):
 
 JSONのみを返してください。"""
 
-    return call_claude(prompt, max_tokens=3000, label='chatwork')
+    return call_claude(prompt, max_tokens=6000, label='chatwork')
 
 
 def analyze_business(biz_key, biz_name, context, revenue_data, member_context, today_str):
@@ -536,7 +568,7 @@ chatworkログに登場する人物からスタッフ構成を分析し、各ス
 
 JSONのみを返してください。"""
 
-    return call_claude(prompt, max_tokens=3000, label=biz_key)
+    return call_claude(prompt, max_tokens=8000, label=biz_key)
 
 
 def analyze_biz_report(all_summaries, today_str):
@@ -623,11 +655,12 @@ def main():
     for biz in ['hikkoshi', 'hisho', 'musashikosugi']:
         member_contexts[biz] = fetch_member_list(MEMBER_SHEETS[biz])
 
-    # ─── 5. Chatwork振り返り統計計算 ───
-    print('\n[5] Chatwork振り返り計算中...')
+    # ─── 5. Chatwork振り返り統計計算（全ルーム・DM含む） ───
+    print('\n[5] Chatwork振り返り計算中（全ルーム・DM含む）...')
+    all_room_msgs, room_name_map = fetch_all_my_room_messages(now_ts)
     cw_stats = None
     if my_account_id:
-        cw_stats = calc_chatwork_stats(room_messages, my_account_id, now)
+        cw_stats = calc_chatwork_stats(all_room_msgs, my_account_id, now, room_name_map)
         if cw_stats:
             print(f'  自分の送信: {cw_stats["totalSent"]}件 / {cw_stats["startTime"]}〜{cw_stats["endTime"]}')
 
