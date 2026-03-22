@@ -165,43 +165,55 @@ def parse_transposed_monthly(csv_text, month):
     """
     横断型管理会計シート（行=項目, 列=月）をパースして当月KPIを返す
     引越センター・オンライン秘書共通
+    当月データが未入力（revenue=0 かつ dealCount=0）の場合、前月にフォールバック
     """
     reader = csv.reader(io.StringIO(csv_text))
     rows   = list(reader)
 
-    # 月列インデックス: 1月=col2, M月=col(M+1)
+    def to_int(v):
+        try:
+            return int(float(v))
+        except:
+            return 0
+
+    def parse_col(col_idx):
+        result = {}
+        for row in rows:
+            if len(row) <= col_idx:
+                continue
+            cat = row[0].strip()
+            sub = row[1].strip() if len(row) > 1 else ''
+            val = row[col_idx].strip().replace(',', '').replace('¥', '').replace('件', '').replace('%', '')
+            key = f'{cat}_{sub}'
+            result[key] = to_int(val)
+
+        def find(patterns):
+            for p in patterns:
+                for k, v in result.items():
+                    if all(x in k for x in p.split('|')):
+                        return v
+            return 0
+
+        revenue    = find('売上|金額')
+        deal_count = find('売上|件数')
+        var_cost   = find('変動経費|合計')
+        fix_cost   = find('固定経費|合計')
+        profit     = find('利益') or find('最終利益')
+        return revenue, deal_count, var_cost, fix_cost, profit
+
+    # 当月を試みる
     col_idx = month + 1
+    revenue, deal_count, var_cost, fix_cost, profit = parse_col(col_idx)
 
-    result = {}
-    for row in rows:
-        if len(row) <= col_idx:
-            continue
-        cat  = row[0].strip()
-        sub  = row[1].strip() if len(row) > 1 else ''
-        val  = row[col_idx].strip().replace(',', '').replace('¥', '').replace('件', '').replace('%', '')
-
-        def to_int(v):
-            try:
-                return int(float(v))
-            except:
-                return 0
-
-        key = f'{cat}_{sub}'
-        result[key] = to_int(val)
-
-    # 主要KPIを抽出
-    def find(patterns):
-        for p in patterns:
-            for k, v in result.items():
-                if all(x in k for x in p.split('|')):
-                    return v
-        return 0
-
-    revenue     = find('売上|金額')
-    deal_count  = find('売上|件数')
-    var_cost    = find('変動経費|合計')
-    fix_cost    = find('固定経費|合計')
-    profit      = find('利益') or find('最終利益')
+    # 当月データが未入力の場合、前月にフォールバック
+    if revenue == 0 and deal_count == 0:
+        prev_month = month - 1 if month > 1 else 12
+        prev_col   = prev_month + 1
+        revenue, deal_count, var_cost, fix_cost, profit = parse_col(prev_col)
+        month_label = f'{prev_month}月実績（前月）'
+        print(f'  [INFO] 当月({month}月)データ未入力 → {prev_month}月にフォールバック')
+    else:
+        month_label = f'{month}月累計'
 
     return {
         'revenue':    revenue,
@@ -209,6 +221,7 @@ def parse_transposed_monthly(csv_text, month):
         'varCost':    var_cost,
         'fixCost':    fix_cost,
         'profit':     profit,
+        'monthLabel': month_label,
         'rawSummary': f'売上¥{revenue:,} / 件数{deal_count}件 / 変動費¥{var_cost:,} / 固定費¥{fix_cost:,} / 利益¥{profit:,}',
     }
 
@@ -718,8 +731,9 @@ def main():
 
     # 引越センター・オンライン秘書のデフォルトメトリクス
     def make_metrics(rev):
+        month_label = rev.get('monthLabel', f'{now.month}月累計')
         return [
-            {'val': f'¥{rev["revenue"]:,}',   'lbl': '今月売上',   'sub': f'{now.month}月累計', 'cls': 'green' if rev["revenue"] > 0 else ''},
+            {'val': f'¥{rev["revenue"]:,}',   'lbl': '今月売上',   'sub': month_label,          'cls': 'green' if rev["revenue"] > 0 else ''},
             {'val': f'{rev["dealCount"]}件',   'lbl': '売上件数',   'sub': '',                   'cls': ''},
             {'val': f'¥{rev["varCost"]:,}',   'lbl': '変動経費',   'sub': '',                   'cls': ''},
             {'val': f'¥{rev["profit"]:,}',    'lbl': '利益',       'sub': '',                   'cls': 'green' if rev["profit"] > 0 else 'red'},
