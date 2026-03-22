@@ -28,6 +28,7 @@ jobs:
       - name: Run generate script
         env:
           CHATWORK_API_TOKEN: ${{ secrets.CHATWORK_API_TOKEN }}
+          CHATWORK_API_TOKEN_2: ${{ secrets.CHATWORK_API_TOKEN_2 }}
           CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
         run: python scripts/generate.py
 

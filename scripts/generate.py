@@ -188,8 +188,9 @@ def fetch_all_my_room_messages(start_ts, end_ts, biz_room_messages):
         if filtered:
             room_messages[room_id] = filtered
 
-    # DM・マイチャットを追加取得
-    for room in dm_rooms:
+    # DM・マイチャットを追加取得（最近更新された順に上位80室まで）
+    dm_rooms_sorted = sorted(dm_rooms, key=lambda r: r.get('last_update_time', 0), reverse=True)[:80]
+    for room in dm_rooms_sorted:
         room_id = str(room.get('room_id', ''))
         if room_id in room_messages:
             continue
@@ -197,7 +198,7 @@ def fetch_all_my_room_messages(start_ts, end_ts, biz_room_messages):
         filtered = [m for m in msgs if start_ts <= m.get('send_time', 0) <= end_ts]
         if filtered:
             room_messages[room_id] = filtered
-        time.sleep(0.3)
+        time.sleep(0.7)  # レート制限対策（429エラー回避）
 
     total = sum(len(v) for v in room_messages.values())
     print(f'  対象日メッセージ合計: {total}件（{len(room_messages)}ルーム）')
