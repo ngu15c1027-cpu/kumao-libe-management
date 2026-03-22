@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morning Dashboard</title>
+<style>
+:root {
+  --blue: #2563eb;
+  --blue-dark: #1d4ed8;
+  --blue-light: #eff6ff;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --orange: #d97706;
+  --orange-light: #fffbeb;
+  --green: #16a34a;
+  --green-light: #f0fdf4;
+  --gray: #6b7280;
+  --gray-light: #f9fafb;
+  --border: #e5e7eb;
+  --text: #111827;
+  --text-sub: #6b7280;
+  --card: #ffffff;
+  --bg: #f3f4f6;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  background:var(--bg); color:var(--text); line-height:1.7; font-size:14px;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 60%,#3b82f6 100%);
+  color:white; padding:36px 24px 64px; position:relative;
+}
+.header-inner { max-width:1000px; margin:0 auto; }
+.header h1 { font-size:clamp(24px,4vw,36px); font-weight:900; margin-bottom:6px; }
+.header-sub { font-size:13px; opacity:.75; }
+.alert-banner {
+  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3);
+  border-radius:10px; padding:16px 20px; margin-top:20px;
+  font-size:15px; font-weight:700; line-height:1.6;
+}
+.alert-sub { font-size:13px; font-weight:400; opacity:.85; margin-top:6px; }
+
+/* ===== TABS ===== */
+.tabs-wrap {
+  background:white; border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:100;
+  box-shadow:0 2px 4px rgba(0,0,0,0.06);
+}
+.tabs { max-width:1000px; margin:0 auto; padding:0 16px; display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab-btn {
+  padding:14px 18px; border:none; background:none;
+  font-size:13px; font-weight:600; color:var(--gray);
+  white-space:nowrap; cursor:pointer;
+  border-bottom:3px solid transparent; transition:all .2s; font-family:inherit;
+}
+.tab-btn:hover { color:var(--blue); }
+.tab-btn.active { color:var(--blue); border-bottom-color:var(--blue); }
+
+/* ===== MAIN ===== */
+.main { max-width:1000px; margin:0 auto; padding:28px 20px 80px; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* ===== SECTION ===== */
+.section { margin-bottom:36px; }
+.section-title {
+  font-size:18px; font-weight:800; color:var(--text);
+  margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid var(--border);
+}
+
+/* ===== CARD ===== */
+.card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:20px 24px; margin-bottom:16px; }
+
+/* ===== RISK OVERVIEW ===== */
+.risk-overview { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+.risk-stat { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:20px; text-align:center; }
+.risk-stat .num { font-size:48px; font-weight:900; line-height:1.1; margin-bottom:4px; }
+.risk-stat .num.red    { color:var(--red); }
+.risk-stat .num.orange { color:var(--orange); }
+.risk-stat .num.blue   { color:var(--blue); }
+.risk-stat .num.gray   { color:var(--gray); }
+.risk-stat .lbl  { font-size:13px; color:var(--text-sub); font-weight:600; }
+.risk-stat .detail { font-size:11px; color:var(--text-sub); margin-top:4px; }
+
+/* ===== RISK CARD ===== */
+.risk-card { border-radius:var(--radius); border-left:4px solid; background:var(--card); box-shadow:var(--shadow); padding:20px 24px; margin-bottom:14px; }
+.risk-card.high   { border-color:var(--red);    background:#fff8f8; }
+.risk-card.medium { border-color:var(--orange);  background:#fffdf0; }
+.risk-card.low    { border-color:var(--blue);    background:var(--blue-light); }
+.risk-card-title { font-size:15px; font-weight:800; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.risk-badge { font-size:11px; font-weight:700; padding:2px 10px; border-radius:100px; }
+.risk-badge.high   { background:var(--red);    color:white; }
+.risk-badge.medium { background:var(--orange);  color:white; }
+.risk-badge.low    { background:var(--blue);    color:white; }
+.risk-card p { font-size:13px; line-height:1.8; margin-bottom:10px; }
+.risk-card .action { font-size:13px; font-weight:700; background:rgba(0,0,0,.04); border-radius:8px; padding:10px 14px; }
+
+/* ===== TABLE ===== */
+.data-table { width:100%; border-collapse:collapse; background:var(--card); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); border:1px solid var(--border); font-size:13px; }
+.data-table th { background:var(--gray-light); padding:12px 16px; text-align:left; font-weight:700; color:var(--text-sub); border-bottom:1px solid var(--border); }
+.data-table td { padding:12px 16px; border-bottom:1px solid #f3f4f6; vertical-align:top; }
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tr:hover td { background:var(--gray-light); }
+
+.deadline-badge { display:inline-block; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; background:var(--blue-light); color:var(--blue-dark); }
+.deadline-badge.urgent { background:#fee2e2; color:var(--red); }
+.deadline-badge.soon   { background:#fef3c7; color:#92400e; }
+
+/* ===== SIGNALS ===== */
+.signal-list { list-style:none; }
+.signal-list li { padding:10px 14px; border-bottom:1px solid #f3f4f6; font-size:13px; display:flex; gap:10px; align-items:flex-start; }
+.signal-list li:last-child { border-bottom:none; }
+.signal-list li::before { content:'✦'; color:var(--green); flex-shrink:0; font-size:12px; margin-top:2px; }
+.sig-name { font-weight:700; color:var(--blue-dark); min-width:110px; flex-shrink:0; }
+
+/* ===== CHATWORK ===== */
+.cw-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+.cw-stat { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:20px; text-align:center; }
+.cw-stat .val { font-size:36px; font-weight:900; color:var(--blue); line-height:1.1; }
+.cw-stat .lbl { font-size:12px; color:var(--text-sub); margin-top:4px; }
+.cw-stat .sub { font-size:11px; color:var(--text-sub); margin-top:2px; }
+
+.rank-num { display:inline-flex; width:24px; height:24px; background:var(--blue); color:white; border-radius:50%; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+
+/* ===== DONE / PROGRESS ===== */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.check-list { list-style:none; }
+.check-list li { padding:8px 0 8px 22px; position:relative; border-bottom:1px solid #f3f4f6; font-size:13px; line-height:1.6; }
+.check-list li:last-child { border-bottom:none; }
+.check-list li::before { position:absolute; left:0; }
+.check-list.done li::before     { content:'✓'; color:var(--green); }
+.check-list.progress li::before { content:'▸'; color:var(--orange); }
+
+/* ===== DECISION ===== */
+.decision-list { list-style:none; }
+.decision-list li { padding:12px 16px; border-bottom:1px solid #f3f4f6; font-size:13px; display:flex; gap:12px; align-items:flex-start; }
+.decision-list li:last-child { border-bottom:none; }
+.decision-num { width:22px; height:22px; background:var(--blue); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; margin-top:1px; }
+
+/* ===== COMM GRID ===== */
+.comm-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.comm-card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); padding:18px 20px; }
+.comm-card h4 { font-size:13px; font-weight:800; color:var(--text-sub); margin-bottom:10px; }
+.comm-card p  { font-size:13px; line-height:1.8; }
+
+/* ===== STATUS BADGE ===== */
+.status-badge { display:inline-block; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:700; }
+.status-badge.top     { background:#fee2e2; color:var(--red); }
+.status-badge.ongoing { background:#d1fae5; color:#065f46; }
+.status-badge.watch   { background:#fef3c7; color:#92400e; }
+
+/* ===== BUSINESS SUMMARY ===== */
+.biz-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+.biz-summary-card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:20px 24px; }
+.biz-summary-card h4 { font-size:14px; font-weight:800; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.biz-summary-card h4.good    { color:var(--green); }
+.biz-summary-card h4.caution { color:var(--orange); }
+.biz-summary-card p { font-size:13px; line-height:1.8; }
+
+.biz-card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); border-left:4px solid var(--blue); box-shadow:var(--shadow); padding:20px 24px; margin-bottom:14px; }
+.biz-card-title { font-size:15px; font-weight:800; color:var(--blue-dark); margin-bottom:6px; }
+.biz-card-desc  { font-size:13px; line-height:1.8; margin-bottom:14px; }
+.biz-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; }
+.biz-metric { background:var(--gray-light); border-radius:8px; padding:12px; text-align:center; }
+.biz-metric .val { font-size:20px; font-weight:800; color:var(--blue); }
+.biz-metric .lbl { font-size:11px; color:var(--text-sub); margin-top:2px; }
+.biz-metric.red   .val { color:var(--red); }
+.biz-metric.green .val { color:var(--green); }
+
+/* ===== DEEP DIVE ===== */
+.deepdive-banner { background:linear-gradient(135deg,var(--blue) 0%,var(--blue-dark) 100%); color:white; border-radius:var(--radius); padding:20px 24px; margin-bottom:24px; }
+.deepdive-banner h2 { font-size:18px; font-weight:900; margin-bottom:8px; }
+.deepdive-banner p  { font-size:13px; opacity:.85; line-height:1.6; }
+
+.metrics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:24px; }
+.metric-card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:20px; text-align:center; }
+.metric-card .val { font-size:28px; font-weight:900; color:var(--blue); line-height:1.2; }
+.metric-card .val.red    { color:var(--red); }
+.metric-card .val.green  { color:var(--green); }
+.metric-card .val.orange { color:var(--orange); }
+.metric-card .lbl { font-size:12px; color:var(--text-sub); margin-top:4px; }
+.metric-card .sub { font-size:11px; color:var(--text-sub); margin-top:3px; }
+
+/* ===== STAFF TABLE ===== */
+.staff-status { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+.staff-status.normal  { background:var(--green); }
+.staff-status.warning { background:var(--red); }
+.staff-status.good    { background:var(--blue); }
+
+/* ===== ACTION PLAN ===== */
+.action-plan { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+.action-col { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:18px 20px; }
+.action-col h4 { font-size:13px; font-weight:800; color:var(--text-sub); margin-bottom:12px; text-transform:uppercase; letter-spacing:.5px; }
+.action-col ul { list-style:none; }
+.action-col ul li { font-size:13px; padding:8px 0 8px 18px; position:relative; border-bottom:1px solid #f3f4f6; line-height:1.6; }
+.action-col ul li:last-child { border-bottom:none; }
+.action-col ul li::before { content:'•'; position:absolute; left:4px; color:var(--blue); font-weight:900; }
+
+/* ===== CHART (dental) ===== */
+.chart-wrap { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:20px 24px; overflow-x:auto; margin-bottom:24px; }
+.chart-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.chart-note  { font-size:11px; color:var(--text-sub); margin-bottom:16px; }
+.chart-bar { display:flex; align-items:flex-end; gap:4px; height:140px; padding-bottom:4px; border-bottom:1px solid var(--border); min-width:500px; }
+.bar-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; min-width:24px; }
+.bar { width:100%; max-width:32px; background:linear-gradient(180deg,var(--blue),#60a5fa); border-radius:4px 4px 0 0; margin:0 auto; min-height:4px; }
+.bar-lbl { font-size:9px; color:var(--text-sub); white-space:nowrap; }
+.bar-val  { font-size:9px; font-weight:700; color:var(--blue-dark); }
+
+/* ===== FOOTER ===== */
+.footer { text-align:center; padding:24px; font-size:11px; color:var(--text-sub); border-top:1px solid var(--border); max-width:1000px; margin:0 auto; }
+
+/* ===== NO DATA ===== */
+.no-data { text-align:center; padding:32px; color:var(--text-sub); font-size:13px; }
+
+@media (max-width:680px) {
+  .risk-overview     { grid-template-columns:repeat(2,1fr); }
+  .cw-stats          { grid-template-columns:repeat(2,1fr); }
+  .biz-summary-grid  { grid-template-columns:1fr; }
+  .metrics-grid      { grid-template-columns:repeat(2,1fr); }
+  .comm-grid         { grid-template-columns:1fr; }
+  .two-col           { grid-template-columns:1fr; }
+  .action-plan       { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>Morning Dashboard</h1>
+    <div class="header-sub" id="headerDate">読み込み中...</div>
+    <div class="alert-banner" id="alertBanner">—</div>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="risk">⚠️ リスクアラート</button>
+    <button class="tab-btn" data-tab="chatwork">💬 Chatwork振り返り</button>
+    <button class="tab-btn" data-tab="biz">📊 事業レポート</button>
+    <button class="tab-btn" data-tab="musashikosugi">🦷 武蔵小杉院</button>
+    <button class="tab-btn" data-tab="hikkoshi">🚚 引越センター</button>
+    <button class="tab-btn" data-tab="hisho">📋 オンライン秘書</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ======== TAB: リスクアラート ======== -->
+  <div id="tab-risk" class="tab-panel active">
+    <div class="section">
+      <h2 class="section-title">⚠️ リスクアラート概要</h2>
+      <div class="risk-overview">
+        <div class="risk-stat"><div class="num red"  id="r-high">—</div><div class="lbl">高リスク</div><div class="detail" id="r-high-d"></div></div>
+        <div class="risk-stat"><div class="num orange" id="r-med">—</div><div class="lbl">中リスク</div><div class="detail" id="r-med-d"></div></div>
+        <div class="risk-stat"><div class="num blue" id="r-low">—</div><div class="lbl">低リスク</div><div class="detail" id="r-low-d"></div></div>
+        <div class="risk-stat"><div class="num gray" id="r-total">—</div><div class="lbl">合計リスク件数</div></div>
+      </div>
+    </div>
+    <div class="section"><h2 class="section-title">🔴 高リスク</h2><div id="risk-high-list"></div></div>
+    <div class="section">
+      <h2 class="section-title">🟠 中リスク</h2>
+      <table class="data-table"><thead><tr><th style="width:80px">カテゴリ</th><th>概要</th><th>推奨対応</th><th style="width:80px">期限</th></tr></thead><tbody id="risk-med-body"></tbody></table>
+    </div>
+    <div class="section">
+      <h2 class="section-title">🔵 低リスク</h2>
+      <table class="data-table"><thead><tr><th>案件</th><th>概要</th><th>推奨対応</th></tr></thead><tbody id="risk-low-body"></tbody></table>
+    </div>
+    <div class="section">
+      <h2 class="section-title">✨ ポジティブシグナル</h2>
+      <div class="card"><ul class="signal-list" id="signal-list"></ul></div>
+    </div>
+  </div>
+
+  <!-- ======== TAB: Chatwork振り返り ======== -->
+  <div id="tab-chatwork" class="tab-panel">
+    <div class="section">
+      <h2 class="section-title">💬 ABBレスポンス状況</h2>
+      <div class="cw-stats">
+        <div class="cw-stat"><div class="val" id="cw-total">—</div><div class="lbl">総送信メッセージ数</div></div>
+        <div class="cw-stat"><div class="val" id="cw-start">—</div><div class="lbl">活動開始</div></div>
+        <div class="cw-stat"><div class="val" id="cw-end">—</div><div class="lbl">活動終了</div></div>
+        <div class="cw-stat"><div class="val" id="cw-hours">—</div><div class="lbl">活動時間</div><div class="sub" id="cw-rooms"></div></div>
+      </div>
+    </div>
+    <div class="section">
+      <h2 class="section-title">📋 ルーム別サマリー TOP10</h2>
+      <table class="data-table"><thead><tr><th style="width:40px">#</th><th>ルーム名</th><th style="width:60px">件数</th><th>主なトピック</th></tr></thead><tbody id="cw-room-body"></tbody></table>
+    </div>
+    <div class="section">
+      <h2 class="section-title">👥 やり取りした相手（頻度順）</h2>
+      <table class="data-table"><thead><tr><th style="width:40px">#</th><th>相手</th><th>概要</th></tr></thead><tbody id="cw-contact-body"></tbody></table>
+    </div>
+    <div class="section">
+      <h2 class="section-title">✅ 成果・進捗</h2>
+      <div class="two-col">
+        <div class="card"><h4 style="font-size:14px;font-weight:800;color:var(--green);margin-bottom:12px">完了</h4><ul class="check-list done" id="cw-done"></ul></div>
+        <div class="card"><h4 style="font-size:14px;font-weight:800;color:var(--orange);margin-bottom:12px">進展あり / 新規課題</h4><ul class="check-list progress" id="cw-progress"></ul></div>
+      </div>
+    </div>
+    <div class="section">
+      <h2 class="section-title">📌 意思決定の記録</h2>
+      <div class="card"><ol class="decision-list" id="cw-decisions"></ol></div>
+    </div>
+    <div class="section">
+      <h2 class="section-title">💡 コミュニケーション品質</h2>
+      <div class="comm-grid">
+        <div class="comm-card"><h4>感情・トーン</h4><p id="cw-tone">—</p></div>
+        <div class="comm-card"><h4>改善ポイント</h4><p id="cw-improve">—</p></div>
+      </div>
+    </div>
+    <div class="section">
+      <h2 class="section-title">🔄 翌日持ち越し</h2>
+      <table class="data-table"><thead><tr><th style="width:40px">#</th><th>内容</th><th style="width:100px">ステータス</th></tr></thead><tbody id="cw-carryover"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ======== TAB: 事業レポート ======== -->
+  <div id="tab-biz" class="tab-panel">
+    <div class="section">
+      <h2 class="section-title">📊 全体サマリー</h2>
+      <div class="biz-summary-grid">
+        <div class="biz-summary-card"><h4 class="good">✅ 好調な事業</h4><p id="biz-good">—</p></div>
+        <div class="biz-summary-card"><h4 class="caution">⚠️ 注意が必要な事業</h4><p id="biz-caution">—</p></div>
+      </div>
+    </div>
+    <div class="section"><h2 class="section-title">📑 事業別レポート</h2><div id="biz-list"></div></div>
+  </div>
+
+  <!-- ======== TAB: 武蔵小杉院 ======== -->
+  <div id="tab-musashikosugi" class="tab-panel">
+    <div class="deepdive-banner"><h2>🦷 リベ大デンタルクリニック武蔵小杉院</h2><p id="musashi-sub">—</p></div>
+    <div class="section"><h2 class="section-title">📊 診療実績</h2><div class="metrics-grid" id="musashi-metrics"></div></div>
+    <div class="section" id="musashi-chart-section">
+      <h2 class="section-title">📈 日別売上推移</h2>
+      <div class="chart-wrap"><div class="chart-title" id="musashi-chart-title"></div><div class="chart-note">保険＋自費＋矯正＋物販の合計</div><div class="chart-bar" id="musashi-chart"></div></div>
+    </div>
+    <div class="section"><h2 class="section-title">👥 スタッフ構成</h2><table class="data-table"><thead><tr><th>名前</th><th>役割</th><th>直近の状況・備考</th></tr></thead><tbody id="musashi-staff"></tbody></table></div>
+    <div class="section"><h2 class="section-title">🔍 課題・状況</h2><div id="musashi-issues"></div></div>
+    <div class="section"><h2 class="section-title">🚀 アクションプラン</h2><div class="action-plan" id="musashi-actions"></div></div>
+  </div>
+
+  <!-- ======== TAB: 引越センター ======== -->
+  <div id="tab-hikkoshi" class="tab-panel">
+    <div class="deepdive-banner"><h2>🚚 リベ大引越センター</h2><p id="hikkoshi-sub">—</p></div>
+    <div class="section"><h2 class="section-title">📊 事業KPI</h2><div class="metrics-grid" id="hikkoshi-metrics"></div></div>
+    <div class="section"><h2 class="section-title">👥 スタッフ・メンバー構成</h2><table class="data-table"><thead><tr><th>名前</th><th>役割</th><th>直近の状況・備考</th></tr></thead><tbody id="hikkoshi-staff"></tbody></table></div>
+    <div class="section"><h2 class="section-title">🔍 課題・状況</h2><div id="hikkoshi-issues"></div></div>
+    <div class="section"><h2 class="section-title">🚀 アクションプラン</h2><div class="action-plan" id="hikkoshi-actions"></div></div>
+  </div>
+
+  <!-- ======== TAB: オンライン秘書 ======== -->
+  <div id="tab-hisho" class="tab-panel">
+    <div class="deepdive-banner"><h2>📋 リベ大オンライン秘書</h2><p id="hisho-sub">—</p></div>
+    <div class="section"><h2 class="section-title">📊 事業KPI</h2><div class="metrics-grid" id="hisho-metrics"></div></div>
+    <div class="section"><h2 class="section-title">👥 スタッフ・メンバー構成</h2><table class="data-table"><thead><tr><th>名前</th><th>役割</th><th>直近の状況・備考</th></tr></thead><tbody id="hisho-staff"></tbody></table></div>
+    <div class="section"><h2 class="section-title">🔍 課題・状況</h2><div id="hisho-issues"></div></div>
+    <div class="section"><h2 class="section-title">🚀 アクションプラン</h2><div class="action-plan" id="hisho-actions"></div></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>Morning Dashboard | 毎朝7時自動更新 | <span id="footer-date"></span></p>
+</div>
+
+<script>
+// ================================================================
+// ユーティリティ
+// ================================================================
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtY(n){ n=n||0; if(n>=10000000) return (n/10000).toFixed(0)+'万円'; if(n>=10000) return (n/10000).toFixed(1)+'万円'; return n.toLocaleString()+'円'; }
+
+function switchTab(key){
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===key); });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.toggle('active', p.id==='tab-'+key); });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.tab-btn').forEach(function(b){
+  b.addEventListener('click', function(){ switchTab(b.dataset.tab); });
+});
+
+// ================================================================
+// 描画関数
+// ================================================================
+
+function renderHeader(d){
+  document.getElementById('headerDate').textContent = d.date + ' ' + d.generatedAt + ' 生成';
+  document.getElementById('footer-date').textContent = '最終更新: ' + (d.updatedAtLabel||'');
+  document.title = 'Morning Dashboard ' + d.date;
+  var a = d.alerts||{};
+  document.getElementById('alertBanner').innerHTML =
+    esc(a.headline||'') + (a.sub ? '<div class="alert-sub">'+esc(a.sub)+'</div>' : '');
+}
+
+function renderRisk(d){
+  var r = d.risks||{};
+  var high=r.high||[], med=r.medium||[], low=r.low||[];
+  document.getElementById('r-high').textContent  = high.length;
+  document.getElementById('r-med').textContent   = med.length;
+  document.getElementById('r-low').textContent   = low.length;
+  document.getElementById('r-total').textContent = high.length+med.length+low.length;
+  document.getElementById('r-high-d').textContent = high.map(function(h){return h.title.replace(/.*?】\s*/,'');}).join(' / ')||'—';
+  document.getElementById('r-med-d').textContent  = med.map(function(m){return m.category;}).join(' / ')||'—';
+  document.getElementById('r-low-d').textContent  = low.map(function(l){return l.case;}).join(' / ')||'—';
+
+  document.getElementById('risk-high-list').innerHTML = high.length ? high.map(function(h){
+    return '<div class="risk-card high"><div class="risk-card-title"><span class="risk-badge high">高</span>'+esc(h.title)+'</div>'
+      +'<p>'+esc(h.body)+'</p><div class="action">'+esc(h.action)+'</div></div>';
+  }).join('') : '<div class="card no-data">高リスクはありません</div>';
+
+  document.getElementById('risk-med-body').innerHTML = med.map(function(m){
+    var cls=m.deadline&&m.deadline.indexOf('急')!==-1?'urgent':m.deadline&&m.deadline.indexOf('週')!==-1?'soon':'';
+    return '<tr><td><strong>'+esc(m.category)+'</strong></td><td>'+esc(m.summary)+'</td><td>'+esc(m.action)+'</td>'
+      +'<td><span class="deadline-badge '+cls+'">'+esc(m.deadline)+'</span></td></tr>';
+  }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text-sub);padding:20px">中リスクはありません</td></tr>';
+
+  document.getElementById('risk-low-body').innerHTML = low.map(function(l){
+    return '<tr><td><strong>'+esc(l.case)+'</strong></td><td>'+esc(l.summary)+'</td><td>'+esc(l.action)+'</td></tr>';
+  }).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text-sub);padding:20px">低リスクはありません</td></tr>';
+
+  document.getElementById('signal-list').innerHTML = (r.signals||[]).map(function(s){
+    return '<li><span class="sig-name">'+esc(s.name)+'</span><span>'+esc(s.text)+'</span></li>';
+  }).join('') || '<li style="color:var(--text-sub)">シグナルデータなし</li>';
+}
+
+function renderChatwork(d){
+  var cw = d.chatworkReview||{};
+  document.getElementById('cw-total').textContent = cw.totalSent||'—';
+  document.getElementById('cw-start').textContent = cw.startTime||'—';
+  document.getElementById('cw-end').textContent   = cw.endTime||'—';
+  document.getElementById('cw-hours').textContent = cw.activeHours||'—';
+  document.getElementById('cw-rooms').textContent = (cw.roomCount||0)+'ルーム';
+
+  document.getElementById('cw-room-body').innerHTML = (cw.roomSummary||[]).map(function(r,i){
+    return '<tr><td><span class="rank-num">'+(i+1)+'</span></td><td>'+esc(r.room||r.room_name)+'</td>'
+      +'<td style="text-align:center;font-weight:700">'+esc(r.count)+'</td><td>'+esc(r.topics||'')+'</td></tr>';
+  }).join('') || '<tr><td colspan="4" class="no-data">データなし</td></tr>';
+
+  document.getElementById('cw-contact-body').innerHTML = (cw.contacts||[]).map(function(c,i){
+    return '<tr><td><span class="rank-num">'+(i+1)+'</span></td><td><strong>'+esc(c.name)+'</strong>'
+      +(c.count?'&nbsp;<small style="color:var(--text-sub)">'+c.count+'件</small>':'')+'</td><td>'+esc(c.summary||'')+'</td></tr>';
+  }).join('') || '<tr><td colspan="3" class="no-data">データなし</td></tr>';
+
+  document.getElementById('cw-done').innerHTML = (cw.done||[]).map(function(t){
+    return '<li>'+esc(t)+'</li>';
+  }).join('') || '<li style="color:var(--text-sub)">なし</li>';
+
+  document.getElementById('cw-progress').innerHTML = (cw.progress||[]).map(function(t){
+    return '<li>'+esc(t)+'</li>';
+  }).join('') || '<li style="color:var(--text-sub)">なし</li>';
+
+  document.getElementById('cw-decisions').innerHTML = (cw.decisions||[]).map(function(dec,i){
+    return '<li><div class="decision-num">'+(i+1)+'</div><div>'+esc(dec.content||dec)+'</div></li>';
+  }).join('') || '<li style="color:var(--text-sub);padding:12px 0">意思決定の記録なし</li>';
+
+  document.getElementById('cw-tone').textContent    = cw.tone||'—';
+  document.getElementById('cw-improve').textContent = cw.improve||'—';
+
+  var statusMap = {top:['top','本日最重要'], ongoing:['ongoing','進行中'], watch:['watch','要注視']};
+  document.getElementById('cw-carryover').innerHTML = (cw.carryover||[]).map(function(c,i){
+    var s = statusMap[c.status]||['ongoing', c.status||''];
+    return '<tr><td>'+(i+1)+'</td><td>'+esc(c.content)+'</td>'
+      +'<td><span class="status-badge '+s[0]+'">'+s[1]+'</span></td></tr>';
+  }).join('') || '<tr><td colspan="3" class="no-data">持ち越し事項なし</td></tr>';
+}
+
+function renderBizReport(d){
+  var b = d.bizReport||{};
+  document.getElementById('biz-good').textContent    = b.good    ||'—';
+  document.getElementById('biz-caution').textContent = b.caution ||'—';
+
+  var items = [
+    {key:'musashikosugi', tab:'musashikosugi', icon:'🦷', name:'リベ大デンタルクリニック武蔵小杉院'},
+    {key:'hikkoshi',      tab:'hikkoshi',      icon:'🚚', name:'リベ大引越センター'},
+    {key:'hisho',         tab:'hisho',         icon:'📋', name:'リベ大オンライン秘書'},
+  ];
+  document.getElementById('biz-list').innerHTML = items.map(function(item){
+    var biz = d[item.key]||{};
+    var metrics = (biz.metrics||[]).slice(0,4).map(function(m){
+      return '<div class="biz-metric '+(m.cls||'')+'"><div class="val">'+esc(m.val)+'</div>'
+        +'<div class="lbl">'+esc(m.lbl)+(m.sub?'<br><small>'+esc(m.sub)+'</small>':'')+'</div></div>';
+    }).join('');
+    return '<div class="biz-card">'
+      +'<div class="biz-card-title">'+item.icon+' '+esc(item.name)
+      +' <span style="font-size:12px;color:var(--blue);cursor:pointer;font-weight:400" onclick="switchTab(\''+item.tab+'\')">→ 深掘りを見る</span></div>'
+      +'<div class="biz-card-desc">'+esc(biz.bannerSub||'')+'</div>'
+      +'<div class="biz-metrics">'+metrics+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderMetrics(id, metrics){
+  document.getElementById(id).innerHTML = (metrics||[]).map(function(m){
+    return '<div class="metric-card"><div class="val '+(m.cls||'')+'">'+esc(m.val)+'</div>'
+      +'<div class="lbl">'+esc(m.lbl)+'</div>'
+      +(m.sub?'<div class="sub">'+esc(m.sub)+'</div>':'')+'</div>';
+  }).join('') || '<div class="no-data">データなし</div>';
+}
+
+function renderStaff(id, staff){
+  document.getElementById(id).innerHTML = (staff||[]).map(function(s){
+    var st = s.status||'normal';
+    return '<tr><td><span class="staff-status '+st+'"></span><strong>'+esc(s.name)+'</strong></td>'
+      +'<td>'+esc(s.role)+'</td><td>'+esc(s.note)+'</td></tr>';
+  }).join('') || '<tr><td colspan="3" class="no-data">スタッフデータなし</td></tr>';
+}
+
+function renderIssues(id, issues){
+  document.getElementById(id).innerHTML = (issues||[]).map(function(iss){
+    return '<div class="risk-card medium"><div class="risk-card-title">'+esc(iss.title)+'</div>'
+      +'<p>'+esc(iss.body)+'</p><div class="action">'+esc(iss.action)+'</div></div>';
+  }).join('') || '<div class="card no-data">課題なし</div>';
+}
+
+function renderActions(id, actions){
+  document.getElementById(id).innerHTML = (actions||[]).map(function(col){
+    return '<div class="action-col"><h4>'+esc(col.period)+'</h4>'
+      +'<ul>'+(col.items||[]).map(function(it){ return '<li>'+esc(it)+'</li>'; }).join('')+'</ul></div>';
+  }).join('') || '<div class="no-data">アクションプランなし</div>';
+}
+
+function renderDentalChart(reports){
+  if(!reports||!reports.length){ document.getElementById('musashi-chart-section').style.display='none'; return; }
+  var max = Math.max.apply(null, reports.map(function(r){ return r.total; }))||1;
+  document.getElementById('musashi-chart-title').textContent = '日別売上推移';
+  document.getElementById('musashi-chart').innerHTML = reports.map(function(r){
+    var h = Math.max(4, r.total/max*120);
+    return '<div class="bar-item">'
+      +'<div class="bar-val">'+(r.total/10000).toFixed(0)+'万</div>'
+      +'<div class="bar" style="height:'+h+'px"></div>'
+      +'<div class="bar-lbl">'+esc(r.date)+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+// ================================================================
+// data.json 読み込み & 描画
+// ================================================================
+fetch('./data.json?t='+Date.now())
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    renderHeader(d);
+    renderRisk(d);
+    renderChatwork(d);
+    renderBizReport(d);
+
+    // 武蔵小杉院
+    document.getElementById('musashi-sub').textContent = (d.musashikosugi||{}).bannerSub||'—';
+    renderMetrics('musashi-metrics', (d.musashikosugi||{}).metrics);
+    renderDentalChart((d.musashikosugi||{}).dailyReports);
+    renderStaff('musashi-staff',    (d.musashikosugi||{}).staff);
+    renderIssues('musashi-issues',  (d.musashikosugi||{}).issues);
+    renderActions('musashi-actions',(d.musashikosugi||{}).actions);
+
+    // 引越センター
+    document.getElementById('hikkoshi-sub').textContent = (d.hikkoshi||{}).bannerSub||'—';
+    renderMetrics('hikkoshi-metrics', (d.hikkoshi||{}).metrics);
+    renderStaff('hikkoshi-staff',    (d.hikkoshi||{}).staff);
+    renderIssues('hikkoshi-issues',  (d.hikkoshi||{}).issues);
+    renderActions('hikkoshi-actions',(d.hikkoshi||{}).actions);
+
+    // オンライン秘書
+    document.getElementById('hisho-sub').textContent = (d.hisho||{}).bannerSub||'—';
+    renderMetrics('hisho-metrics', (d.hisho||{}).metrics);
+    renderStaff('hisho-staff',    (d.hisho||{}).staff);
+    renderIssues('hisho-issues',  (d.hisho||{}).issues);
+    renderActions('hisho-actions',(d.hisho||{}).actions);
+  })
+  .catch(function(e){
+    console.error(e);
+    document.getElementById('headerDate').textContent = 'データ読み込みエラー';
+    document.getElementById('alertBanner').textContent = '⚠️ data.json の読み込みに失敗しました。GitHub Actions が正常に動作しているか確認してください。';
+  });
+</script>
+</body>
+</html>

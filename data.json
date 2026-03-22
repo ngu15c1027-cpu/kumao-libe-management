@@ -1,0 +1,57 @@
+{
+  "date": "—",
+  "generatedAt": "—",
+  "updatedAtLabel": "初期データ（まだ自動更新されていません）",
+  "alerts": {
+    "headline": "⏳ 初回更新待ち — GitHub Actions が実行されると自動生成されます",
+    "sub": "毎朝7時（JST）に自動更新されます"
+  },
+  "risks": {
+    "high": [],
+    "medium": [],
+    "low": [],
+    "signals": []
+  },
+  "chatworkReview": {
+    "date": "—",
+    "totalSent": 0,
+    "startTime": "—",
+    "endTime": "—",
+    "activeHours": "—",
+    "roomCount": 0,
+    "roomSummary": [],
+    "contacts": [],
+    "done": [],
+    "progress": [],
+    "decisions": [],
+    "tone": "—",
+    "improve": "—",
+    "carryover": []
+  },
+  "bizReport": {
+    "good": "—",
+    "caution": "—"
+  },
+  "musashikosugi": {
+    "bannerSub": "—",
+    "metrics": [],
+    "staff": [],
+    "issues": [],
+    "actions": [],
+    "dailyReports": []
+  },
+  "hikkoshi": {
+    "bannerSub": "—",
+    "metrics": [],
+    "staff": [],
+    "issues": [],
+    "actions": []
+  },
+  "hisho": {
+    "bannerSub": "—",
+    "metrics": [],
+    "staff": [],
+    "issues": [],
+    "actions": []
+  }
+}
