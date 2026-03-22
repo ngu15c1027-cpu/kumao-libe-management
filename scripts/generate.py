@@ -38,11 +38,11 @@ SHEETS = {
     'musashikosugi': '1c3yPZdER5i4e0syuGkyFabF3cuG7VF_kVZBQ_rNGVL4',
 }
 
-# メンバーリストスプレッドシートID（提供後に設定）
+# メンバーリストスプレッドシートID
 MEMBER_SHEETS = {
-    'hikkoshi':      None,   # 後で追加
-    'hisho':         None,   # 後で追加
-    'musashikosugi': None,   # 後で追加
+    'hikkoshi':      '1-sSB2eYp9qT3Kp5N__SncqnQiLl4b-Mrd68ZLLxijfE',
+    'hisho':         '1KDWJkgtxdMzW2sefWNFfU4MM9x0bBhZw5-SeNMQwKtI',
+    'musashikosugi': '1vKpPr3zF760EkxTiUpr5h3ZaOet0_l7ap3S2oRIopwY',
 }
 
 # 監視Chatworkルーム
