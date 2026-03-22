@@ -23,7 +23,8 @@ import anthropic
 # ============================================================
 # 設定
 # ============================================================
-CHATWORK_TOKEN = os.environ['CHATWORK_API_TOKEN']
+CHATWORK_TOKEN  = os.environ['CHATWORK_API_TOKEN']
+CHATWORK_TOKEN2 = os.environ.get('CHATWORK_API_TOKEN_2', '')  # 2つ目のアカウント（任意）
 CLAUDE_API_KEY  = os.environ['CLAUDE_API_KEY']
 
 JST      = timezone(timedelta(hours=9))
@@ -111,6 +112,23 @@ def get_my_account():
     if data:
         print(f'  自分のアカウント: {data.get("name")} (ID: {data.get("account_id")})')
     return data
+
+
+def get_my_account2():
+    """2つ目のアカウント情報を取得"""
+    if not CHATWORK_TOKEN2:
+        return None
+    try:
+        r = requests.get(f'{CW_BASE}/me',
+                         headers={'X-ChatWorkToken': CHATWORK_TOKEN2}, timeout=30)
+        if r.status_code == 200:
+            data = r.json()
+            print(f'  2つ目のアカウント: {data.get("name")} (ID: {data.get("account_id")})')
+            return data
+        print(f'[WARN] 2つ目のアカウント取得失敗: HTTP {r.status_code}')
+    except Exception as e:
+        print(f'[ERROR] get_my_account2: {e}')
+    return None
 
 
 def get_room_messages(room_id):
@@ -335,9 +353,14 @@ def fetch_member_list(sheet_id):
 # Chatwork振り返り統計（Python側で計算）
 # ============================================================
 
-def calc_chatwork_stats(all_room_messages, my_account_id, now, room_name_map=None):
-    """自分が送ったメッセージの統計を計算"""
+def calc_chatwork_stats(all_room_messages, my_account_ids, now, room_name_map=None):
+    """自分が送ったメッセージの統計を計算（複数アカウント対応）"""
     room_name_map = room_name_map or {}
+    # my_account_ids はセット（複数アカウントのIDをまとめて判定）
+    if isinstance(my_account_ids, int):
+        my_account_ids = {my_account_ids}
+    else:
+        my_account_ids = set(my_account_ids)
 
     def get_room_name(room_id):
         return (ALL_ROOMS.get(room_id, {}).get('name')
@@ -351,7 +374,7 @@ def calc_chatwork_stats(all_room_messages, my_account_id, now, room_name_map=Non
     for room_id, msgs in all_room_messages.items():
         for m in msgs:
             acc = m.get('account', {})
-            if acc.get('account_id') == my_account_id:
+            if acc.get('account_id') in my_account_ids:
                 my_msgs.append({
                     'room_id':   room_id,
                     'room_name': get_room_name(room_id),
@@ -661,6 +684,12 @@ def main():
     if not my_account_id:
         print('[WARN] アカウントIDを取得できませんでした')
 
+    me2 = get_my_account2()
+    my_account_id2 = me2.get('account_id') if me2 else None
+
+    # 2アカウントをセットにまとめる
+    my_account_ids = {i for i in [my_account_id, my_account_id2] if i}
+
     # ─── 2. Chatworkメッセージ取得 ───
     print('\n[2] Chatworkメッセージ取得中...')
     biz_messages, room_messages = fetch_all_messages(now_ts)
@@ -711,7 +740,7 @@ def main():
     all_room_msgs, room_name_map = fetch_all_my_room_messages(cw_start_ts, cw_end_ts, room_messages)
     cw_stats = None
     if my_account_id:
-        cw_stats = calc_chatwork_stats(all_room_msgs, my_account_id, now, room_name_map)
+        cw_stats = calc_chatwork_stats(all_room_msgs, my_account_ids, now, room_name_map)
         if cw_stats:
             print(f'  自分の送信: {cw_stats["totalSent"]}件 / {cw_stats["startTime"]}〜{cw_stats["endTime"]}')
 
