@@ -428,6 +428,32 @@ def format_my_messages(my_msgs, max_chars=200):
 
 claude = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
 
+def sanitize_json_text(text):
+    """JSON文字列内の未エスケープ改行・制御文字を修正する"""
+    result = []
+    in_string = False
+    escape_next = False
+    for ch in text:
+        if escape_next:
+            result.append(ch)
+            escape_next = False
+        elif ch == '\\':
+            result.append(ch)
+            escape_next = True
+        elif ch == '"':
+            in_string = not in_string
+            result.append(ch)
+        elif in_string and ch == '\n':
+            result.append('\\n')
+        elif in_string and ch == '\r':
+            result.append('\\r')
+        elif in_string and ch == '\t':
+            result.append('\\t')
+        else:
+            result.append(ch)
+    return ''.join(result)
+
+
 def call_claude(prompt, max_tokens=4096, label=''):
     """Claude APIを呼び出してJSONを返す（最大3回リトライ）"""
     for attempt in range(3):
@@ -441,7 +467,8 @@ def call_claude(prompt, max_tokens=4096, label=''):
             s = text.find('{')
             e = text.rfind('}')
             if s != -1 and e > s:
-                return json.loads(text[s:e+1])
+                json_str = sanitize_json_text(text[s:e+1])
+                return json.loads(json_str)
             print(f'[WARN] Claude ({label}): JSONが見つかりません')
             return {}
         except json.JSONDecodeError as je:
