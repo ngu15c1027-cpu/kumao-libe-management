@@ -142,8 +142,10 @@ def fetch_all_messages(now_ts):
     return biz_messages, room_messages
 
 
-def fetch_all_my_room_messages(now_ts):
-    """自分が参加している全ルーム（DM含む）のメッセージを取得（Chatwork振り返り用）"""
+def fetch_all_my_room_messages(start_ts, end_ts):
+    """自分が参加している全ルーム（DM含む）のメッセージを取得（Chatwork振り返り用）
+    対象範囲: start_ts〜end_ts（前日0:00〜23:59 JST）
+    """
     print('全ルームのメッセージ取得中（DM含む）...')
     rooms_data = cw_get('/rooms')
     if not isinstance(rooms_data, list):
@@ -157,13 +159,14 @@ def fetch_all_my_room_messages(now_ts):
     for room in rooms_data:
         room_id = str(room.get('room_id', ''))
         msgs = get_room_messages(room_id)
-        recent = filter_last_24h(msgs, now_ts)
-        if recent:
-            room_messages[room_id] = recent
+        # 前日0:00〜23:59に絞り込む
+        filtered = [m for m in msgs if start_ts <= m.get('send_time', 0) <= end_ts]
+        if filtered:
+            room_messages[room_id] = filtered
         time.sleep(0.3)  # レート制限対策
 
     total = sum(len(v) for v in room_messages.values())
-    print(f'  直近24h メッセージ合計: {total}件（{len(room_messages)}ルーム）')
+    print(f'  対象日メッセージ合計: {total}件（{len(room_messages)}ルーム）')
     return room_messages, room_name_map
 
 
@@ -601,6 +604,11 @@ def main():
     today_str = now.strftime('%Y年%m月%d日')
     month   = now.month
 
+    # Chatwork振り返り対象日 = 前日（0:00〜23:59 JST）
+    yesterday       = (now - timedelta(days=1)).date()
+    cw_start_ts     = int(datetime(yesterday.year, yesterday.month, yesterday.day,  0,  0,  0, tzinfo=JST).timestamp())
+    cw_end_ts       = int(datetime(yesterday.year, yesterday.month, yesterday.day, 23, 59, 59, tzinfo=JST).timestamp())
+
     print(f'=== Morning Dashboard 生成開始: {now.strftime("%Y-%m-%d %H:%M JST")} ===')
 
     # ─── 1. 自分のアカウント情報取得 ───
@@ -657,7 +665,7 @@ def main():
 
     # ─── 5. Chatwork振り返り統計計算（全ルーム・DM含む） ───
     print('\n[5] Chatwork振り返り計算中（全ルーム・DM含む）...')
-    all_room_msgs, room_name_map = fetch_all_my_room_messages(now_ts)
+    all_room_msgs, room_name_map = fetch_all_my_room_messages(cw_start_ts, cw_end_ts)
     cw_stats = None
     if my_account_id:
         cw_stats = calc_chatwork_stats(all_room_msgs, my_account_id, now, room_name_map)
