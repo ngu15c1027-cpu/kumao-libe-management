@@ -142,28 +142,40 @@ def fetch_all_messages(now_ts):
     return biz_messages, room_messages
 
 
-def fetch_all_my_room_messages(start_ts, end_ts):
-    """自分が参加している全ルーム（DM含む）のメッセージを取得（Chatwork振り返り用）
-    対象範囲: start_ts〜end_ts（前日0:00〜23:59 JST）
+def fetch_all_my_room_messages(start_ts, end_ts, biz_room_messages):
+    """Chatwork振り返り用メッセージ取得
+    - 指定22ルーム（事業ルーム）: biz_room_messagesをそのまま利用
+    - DM（direct）・マイチャット（my）: APIで追加取得
+    グループチャット2400室を全取得しないよう、direct/myのみ追加する
     """
-    print('全ルームのメッセージ取得中（DM含む）...')
+    print('DM・マイチャットのメッセージ取得中...')
     rooms_data = cw_get('/rooms')
     if not isinstance(rooms_data, list):
-        print('[WARN] /rooms 取得失敗 → 事業ルームのみで代替')
-        return {}, {}
+        print('[WARN] /rooms 取得失敗 → 事業ルームのみで振り返り')
+        return dict(biz_room_messages), {}
 
-    print(f'  参加ルーム数: {len(rooms_data)}')
+    # direct / my タイプのルームのみ抽出（グループチャットはスキップ）
+    dm_rooms = [r for r in rooms_data if r.get('type') in ('direct', 'my')]
     room_name_map = {str(r['room_id']): r.get('name', str(r['room_id'])) for r in rooms_data}
+    print(f'  DM・マイチャット数: {len(dm_rooms)}件（全{len(rooms_data)}室中）')
 
+    # 事業ルームのメッセージをベースにする（既取得・再利用）
     room_messages = {}
-    for room in rooms_data:
-        room_id = str(room.get('room_id', ''))
-        msgs = get_room_messages(room_id)
-        # 前日0:00〜23:59に絞り込む
+    for room_id, msgs in biz_room_messages.items():
         filtered = [m for m in msgs if start_ts <= m.get('send_time', 0) <= end_ts]
         if filtered:
             room_messages[room_id] = filtered
-        time.sleep(0.3)  # レート制限対策
+
+    # DM・マイチャットを追加取得
+    for room in dm_rooms:
+        room_id = str(room.get('room_id', ''))
+        if room_id in room_messages:
+            continue
+        msgs = get_room_messages(room_id)
+        filtered = [m for m in msgs if start_ts <= m.get('send_time', 0) <= end_ts]
+        if filtered:
+            room_messages[room_id] = filtered
+        time.sleep(0.3)
 
     total = sum(len(v) for v in room_messages.values())
     print(f'  対象日メッセージ合計: {total}件（{len(room_messages)}ルーム）')
@@ -692,7 +704,7 @@ def main():
 
     # ─── 5. Chatwork振り返り統計計算（全ルーム・DM含む） ───
     print('\n[5] Chatwork振り返り計算中（全ルーム・DM含む）...')
-    all_room_msgs, room_name_map = fetch_all_my_room_messages(cw_start_ts, cw_end_ts)
+    all_room_msgs, room_name_map = fetch_all_my_room_messages(cw_start_ts, cw_end_ts, room_messages)
     cw_stats = None
     if my_account_id:
         cw_stats = calc_chatwork_stats(all_room_msgs, my_account_id, now, room_name_map)
