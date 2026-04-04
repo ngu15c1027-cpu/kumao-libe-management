@@ -93,17 +93,25 @@ for biz, rooms in ROOMS.items():
 # Chatwork API
 # ============================================================
 
-def cw_get(path, params=None):
-    try:
-        r = requests.get(f'{CW_BASE}{path}', headers=CW_HEADS,
-                         params=params, timeout=30)
-        if r.status_code == 200:
-            return r.json()
-        print(f'[WARN] Chatwork {r.status_code} {path}')
-        return None
-    except Exception as e:
-        print(f'[ERROR] cw_get({path}): {e}')
-        return None
+def cw_get(path, params=None, token=None):
+    headers = {'X-ChatWorkToken': token or CHATWORK_TOKEN}
+    for attempt in range(3):
+        try:
+            r = requests.get(f'{CW_BASE}{path}', headers=headers,
+                             params=params, timeout=30)
+            if r.status_code == 200:
+                return r.json()
+            if r.status_code == 429 and attempt < 2:
+                wait = 30 * (attempt + 1)
+                print(f'[WARN] Chatwork 429 {path} → {wait}秒待ってリトライ ({attempt+1}/3)...')
+                time.sleep(wait)
+                continue
+            print(f'[WARN] Chatwork {r.status_code} {path}')
+            return None
+        except Exception as e:
+            print(f'[ERROR] cw_get({path}): {e}')
+            return None
+    return None
 
 
 def get_my_account():
