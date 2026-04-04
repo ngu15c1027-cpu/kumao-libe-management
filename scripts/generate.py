@@ -26,6 +26,8 @@ import anthropic
 CHATWORK_TOKEN  = os.environ['CHATWORK_API_TOKEN']
 CHATWORK_TOKEN2 = os.environ.get('CHATWORK_API_TOKEN_2', '')  # 2つ目のアカウント（任意）
 CLAUDE_API_KEY  = os.environ['CLAUDE_API_KEY']
+# /me が429失敗した場合のフォールバック用アカウントID（GitHub Secretsで設定可能）
+CHATWORK_MY_ACCOUNT_ID = os.environ.get('CHATWORK_MY_ACCOUNT_ID', '')
 
 JST      = timezone(timedelta(hours=9))
 CW_BASE  = 'https://api.chatwork.com/v2'
@@ -719,6 +721,9 @@ def main():
     print('\n[1] 自分のChatworkアカウント取得中...')
     me = get_my_account()
     my_account_id = me.get('account_id') if me else None
+    if not my_account_id and CHATWORK_MY_ACCOUNT_ID:
+        my_account_id = int(CHATWORK_MY_ACCOUNT_ID)
+        print(f'  フォールバック: CHATWORK_MY_ACCOUNT_ID={my_account_id} を使用')
     if not my_account_id:
         print('[WARN] アカウントIDを取得できませんでした')
 
@@ -777,7 +782,7 @@ def main():
     print('\n[5] Chatwork振り返り計算中（全ルーム・DM含む）...')
     all_room_msgs, room_name_map = fetch_all_my_room_messages(cw_start_ts, cw_end_ts, room_messages)
     cw_stats = None
-    if my_account_id:
+    if my_account_ids:
         cw_stats = calc_chatwork_stats(all_room_msgs, my_account_ids, now, room_name_map)
         if cw_stats:
             print(f'  自分の送信: {cw_stats["totalSent"]}件 / {cw_stats["startTime"]}〜{cw_stats["endTime"]}')
