@@ -494,6 +494,35 @@ def sanitize_json_text(text):
     return ''.join(result)
 
 
+def fix_missing_commas(text):
+    """JSON構造の欠落カンマを行単位で修正する（sanitize_json_text後に呼ぶ）"""
+    lines = text.split('\n')
+    fixed = []
+    for i, line in enumerate(lines[:-1]):
+        stripped = line.rstrip()
+        next_stripped = lines[i + 1].lstrip()
+        ends_with_value = (
+            stripped.endswith('"') or
+            stripped.endswith('}') or
+            stripped.endswith(']') or
+            (stripped and stripped[-1].isdigit()) or
+            stripped.endswith('true') or
+            stripped.endswith('false') or
+            stripped.endswith('null')
+        )
+        next_starts_new_element = (
+            next_stripped.startswith('"') or
+            next_stripped.startswith('{') or
+            next_stripped.startswith('[')
+        )
+        if ends_with_value and next_starts_new_element:
+            fixed.append(stripped + ',')
+        else:
+            fixed.append(line)
+    fixed.append(lines[-1])
+    return '\n'.join(fixed)
+
+
 def call_claude(prompt, max_tokens=4096, label=''):
     """Claude APIを呼び出してJSONを返す（最大3回リトライ）"""
     for attempt in range(3):
@@ -507,7 +536,7 @@ def call_claude(prompt, max_tokens=4096, label=''):
             s = text.find('{')
             e = text.rfind('}')
             if s != -1 and e > s:
-                json_str = sanitize_json_text(text[s:e+1])
+                json_str = fix_missing_commas(sanitize_json_text(text[s:e+1]))
                 return json.loads(json_str)
             print(f'[WARN] Claude ({label}): JSONが見つかりません')
             return {}
