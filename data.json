@@ -1,7 +1,7 @@
 {
-  "date": "2026-04-24",
-  "generatedAt": "07:41",
-  "updatedAtLabel": "2026年04月24日 07:41",
+  "date": "2026-04-25",
+  "generatedAt": "07:37",
+  "updatedAtLabel": "2026年04月25日 07:37",
   "alerts": {
     "headline": "本日のアラート情報はありません",
     "sub": ""
@@ -13,71 +13,71 @@
     "signals": []
   },
   "chatworkReview": {
-    "date": "4/23（木）",
-    "totalSent": 55,
-    "startTime": "09:14",
-    "endTime": "22:20",
-    "activeHours": "13.1h",
-    "roomCount": 16,
+    "date": "4/24（金）",
+    "totalSent": 49,
+    "startTime": "08:03",
+    "endTime": "22:54",
+    "activeHours": "14.9h",
+    "roomCount": 11,
     "roomSummary": [
       {
         "rank": 1,
-        "room": "飯田ここ",
-        "count": 18,
+        "room": "【リベクリ】べてぃお先生・ABBさん・くまお_相談チャット",
+        "count": 12,
         "topics": ""
       },
       {
         "rank": 2,
+        "room": "飯田ここ",
+        "count": 10,
+        "topics": ""
+      },
+      {
+        "rank": 3,
+        "room": "【リベクリ】松永先生とやり取りするチャット",
+        "count": 7,
+        "topics": ""
+      },
+      {
+        "rank": 4,
+        "room": "【リベクリ】武蔵小杉院｜Drすり合わせチャット",
+        "count": 5,
+        "topics": ""
+      },
+      {
+        "rank": 5,
         "room": "ゆー　土曜日反応遅め",
         "count": 5,
         "topics": ""
       },
       {
-        "rank": 3,
-        "room": "ABB",
-        "count": 5,
-        "topics": ""
-      },
-      {
-        "rank": 4,
-        "room": "【リベクリ】松永先生とやり取りするチャット",
-        "count": 4,
-        "topics": ""
-      },
-      {
-        "rank": 5,
-        "room": "【リベクリ】べてぃお先生・ABBさん・くまお_相談チャット",
-        "count": 3,
-        "topics": ""
-      },
-      {
         "rank": 6,
-        "room": "わっこ先生×べてぃお先生×マーラさん×くまおさん×ABB 連携チャット",
+        "room": "【引越】顧客対応立案チャット",
         "count": 3,
         "topics": ""
       },
       {
         "rank": 7,
-        "room": "【引越】顧客対応立案チャット",
-        "count": 2,
+        "room": "Hito@リベ秘書　お返事が遅くなります",
+        "count": 3,
         "topics": ""
       },
       {
         "rank": 8,
         "room": "【リベ秘書】フロント陣チャット",
-        "count": 2,
+        "count": 1,
         "topics": ""
       },
       {
         "rank": 9,
-        "room": "【リベクリ】武蔵小杉院｜Drすり合わせチャット",
-        "count": 2,
+        "room": "【リベクリ】歯科武蔵小杉院｜日報・業務連絡チャット",
+        "count": 1,
         "topics": ""
       },
       {
         "rank": 10,
         "room": "マイチャット",
-        "count": 2,
+        "count": 1,
         "topics": ""
       }
     ],
@@ -97,21 +97,21 @@
     "bannerSub": "",
     "metrics": [
       {
-        "val": "¥238,570",
+        "val": "¥535,110",
         "lbl": "直近売上",
-        "sub": "04/23 日次",
+        "sub": "04/24 日次",
         "cls": ""
       },
       {
-        "val": "31人",
+        "val": "39人",
         "lbl": "患者数",
-        "sub": "04/23",
+        "sub": "04/24",
         "cls": ""
       },
       {
-        "val": "¥16,187,560",
+        "val": "¥16,722,670",
         "lbl": "月間累計",
-        "sub": "20診療日",
+        "sub": "21診療日",
         "cls": ""
       },
       {
@@ -584,6 +584,29 @@
         "total": 238570,
         "jissitsu": 31,
         "jihiRate": 0
+      },
+      {
+        "date": "04/24",
+        "timestamp": 1776999600,
+        "insurance": {
+          "count": 36,
+          "amount": 289360
+        },
+        "jihi": {
+          "count": 3,
+          "amount": 234000
+        },
+        "kyosei": {
+          "count": 0,
+          "amount": 0
+        },
+        "hanpan": {
+          "count": 5,
+          "amount": 11750
+        },
+        "total": 535110,
+        "jissitsu": 39,
+        "jihiRate": 45
       }
     ]
   },
