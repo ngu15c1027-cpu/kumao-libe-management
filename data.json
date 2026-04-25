@@ -1,7 +1,7 @@
 {
-  "date": "2026-04-25",
-  "generatedAt": "07:37",
-  "updatedAtLabel": "2026年04月25日 07:37",
+  "date": "2026-04-26",
+  "generatedAt": "07:34",
+  "updatedAtLabel": "2026年04月26日 07:34",
   "alerts": {
     "headline": "本日のアラート情報はありません",
     "sub": ""
@@ -13,70 +13,58 @@
     "signals": []
   },
   "chatworkReview": {
-    "date": "4/24（金）",
-    "totalSent": 49,
-    "startTime": "08:03",
-    "endTime": "22:54",
-    "activeHours": "14.9h",
-    "roomCount": 11,
+    "date": "4/25（土）",
+    "totalSent": 54,
+    "startTime": "08:25",
+    "endTime": "23:34",
+    "activeHours": "15.1h",
+    "roomCount": 8,
     "roomSummary": [
       {
         "rank": 1,
-        "room": "【リベクリ】べてぃお先生・ABBさん・くまお_相談チャット",
-        "count": 12,
+        "room": "飯田ここ",
+        "count": 33,
         "topics": ""
       },
       {
         "rank": 2,
-        "room": "飯田ここ",
-        "count": 10,
+        "room": "加藤尚斗",
+        "count": 8,
         "topics": ""
       },
       {
         "rank": 3,
-        "room": "【リベクリ】松永先生とやり取りするチャット",
-        "count": 7,
+        "room": "【リベクリ】歯科武蔵小杉院｜日報・業務連絡チャット",
+        "count": 3,
         "topics": ""
       },
       {
         "rank": 4,
-        "room": "【リベクリ】武蔵小杉院｜Drすり合わせチャット",
-        "count": 5,
+        "room": "マイチャット",
+        "count": 3,
         "topics": ""
       },
       {
         "rank": 5,
-        "room": "ゆー　土曜日反応遅め",
-        "count": 5,
+        "room": "【リベクリ】べてぃお先生・ABBさん・くまお_相談チャット",
+        "count": 2,
         "topics": ""
       },
       {
         "rank": 6,
-        "room": "【引越】顧客対応立案チャット",
-        "count": 3,
+        "room": "ゆた(舘野優)",
+        "count": 2,
         "topics": ""
       },
       {
         "rank": 7,
-        "room": "Hito@リベ秘書　お返事が遅くなります",
-        "count": 3,
+        "room": "中西 稜",
+        "count": 2,
         "topics": ""
       },
       {
         "rank": 8,
-        "room": "【リベ秘書】フロント陣チャット",
-        "count": 1,
-        "topics": ""
-      },
-      {
-        "rank": 9,
-        "room": "【リベクリ】歯科武蔵小杉院｜日報・業務連絡チャット",
-        "count": 1,
-        "topics": ""
-      },
-      {
-        "rank": 10,
-        "room": "マイチャット",
+        "room": "節約オタクふゆこ",
         "count": 1,
         "topics": ""
       }
@@ -97,21 +85,21 @@
     "bannerSub": "",
     "metrics": [
       {
-        "val": "¥535,110",
+        "val": "¥665,970",
         "lbl": "直近売上",
-        "sub": "04/24 日次",
+        "sub": "04/25 日次",
         "cls": ""
       },
       {
-        "val": "39人",
+        "val": "69人",
         "lbl": "患者数",
-        "sub": "04/24",
+        "sub": "04/25",
         "cls": ""
       },
       {
-        "val": "¥16,722,670",
+        "val": "¥17,388,640",
         "lbl": "月間累計",
-        "sub": "21診療日",
+        "sub": "22診療日",
         "cls": ""
       },
       {
@@ -607,6 +595,29 @@
         "total": 535110,
         "jissitsu": 39,
         "jihiRate": 45
+      },
+      {
+        "date": "04/25",
+        "timestamp": 1777086000,
+        "insurance": {
+          "count": 63,
+          "amount": 588460
+        },
+        "jihi": {
+          "count": 6,
+          "amount": 39600
+        },
+        "kyosei": {
+          "count": 0,
+          "amount": 0
+        },
+        "hanpan": {
+          "count": 14,
+          "amount": 37910
+        },
+        "total": 665970,
+        "jissitsu": 69,
+        "jihiRate": 6
       }
     ]
   },
