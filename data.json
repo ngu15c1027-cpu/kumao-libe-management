@@ -1,7 +1,7 @@
 {
-  "date": "2026-04-26",
-  "generatedAt": "07:34",
-  "updatedAtLabel": "2026年04月26日 07:34",
+  "date": "2026-04-27",
+  "generatedAt": "07:35",
+  "updatedAtLabel": "2026年04月27日 07:35",
   "alerts": {
     "headline": "本日のアラート情報はありません",
     "sub": ""
@@ -13,58 +13,70 @@
     "signals": []
   },
   "chatworkReview": {
-    "date": "4/25（土）",
-    "totalSent": 54,
-    "startTime": "08:25",
-    "endTime": "23:34",
-    "activeHours": "15.1h",
-    "roomCount": 8,
+    "date": "4/26（日）",
+    "totalSent": 36,
+    "startTime": "07:58",
+    "endTime": "23:17",
+    "activeHours": "15.3h",
+    "roomCount": 10,
     "roomSummary": [
       {
         "rank": 1,
         "room": "飯田ここ",
-        "count": 33,
+        "count": 21,
         "topics": ""
       },
       {
         "rank": 2,
-        "room": "加藤尚斗",
-        "count": 8,
+        "room": "【リベクリ】松永先生とやり取りするチャット",
+        "count": 4,
         "topics": ""
       },
       {
         "rank": 3,
-        "room": "【リベクリ】歯科武蔵小杉院｜日報・業務連絡チャット",
-        "count": 3,
+        "room": "【引越】顧客対応立案チャット",
+        "count": 2,
         "topics": ""
       },
       {
         "rank": 4,
-        "room": "マイチャット",
-        "count": 3,
+        "room": "ひろひろ@工務店",
+        "count": 2,
         "topics": ""
       },
       {
         "rank": 5,
-        "room": "【リベクリ】べてぃお先生・ABBさん・くまお_相談チャット",
+        "room": "節約オタクふゆこ",
         "count": 2,
         "topics": ""
       },
       {
         "rank": 6,
-        "room": "ゆた(舘野優)",
-        "count": 2,
+        "room": "【引越︰東海】連絡チャット",
+        "count": 1,
         "topics": ""
       },
       {
         "rank": 7,
-        "room": "中西 稜",
-        "count": 2,
+        "room": "すぎしょう",
+        "count": 1,
         "topics": ""
       },
       {
         "rank": 8,
-        "room": "節約オタクふゆこ",
+        "room": "中西 稜",
+        "count": 1,
+        "topics": ""
+      },
+      {
+        "rank": 9,
+        "room": "いそら",
+        "count": 1,
+        "topics": ""
+      },
+      {
+        "rank": 10,
+        "room": "ゆた(舘野優)",
         "count": 1,
         "topics": ""
       }
